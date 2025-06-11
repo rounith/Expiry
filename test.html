@@ -1,0 +1,101 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Grocery Scanner</title>
+  <script src="https://unpkg.com/html5-qrcode"></script>
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4.0.2/dist/tesseract.min.js"></script>
+  <style>
+    body { font-family: sans-serif; padding: 20px; }
+    video, canvas { max-width: 100%; }
+    #reader { width: 300px; margin: auto; }
+  </style>
+</head>
+<body>
+  <h1>Grocery Scanner</h1>
+  <div id="reader"></div>
+  <p id="product-name"></p>
+  <input type="file" accept="image/*" id="imageInput" />
+  <p id="expiry-date"></p>
+  <button id="uploadButton" disabled>Upload to Airtable</button>
+
+  <script>
+    const AIRTABLE_API_KEY = 'pat37xdtUv9ZoeR21.223e5f20177f497b21d56b71d050eba62ebc3cc4a68a09646da91a25432b6cfd';
+    const AIRTABLE_BASE_ID = 'appHn3cLbE1rwuBVX';
+    const AIRTABLE_TABLE_NAME = 'Groceries';
+
+    let scannedProduct = { name: '', barcode: '', expiry: '' };
+
+    // Barcode Scanner
+    const scanner = new Html5Qrcode("reader");
+    scanner.start(
+      { facingMode: "environment" },
+      { fps: 10, qrbox: 250 },
+      async (decodedText) => {
+        console.log("Barcode:", decodedText);
+        scannedProduct.barcode = decodedText;
+        scanner.stop();
+
+        // Fetch product info from Open Food Facts
+        const res = await fetch(`https://world.openfoodfacts.org/api/v0/product/${decodedText}.json`);
+        const data = await res.json();
+        if (data && data.product) {
+          scannedProduct.name = data.product.product_name || "Unknown Product";
+          document.getElementById("product-name").textContent = `Product: ${scannedProduct.name}`;
+          document.getElementById("uploadButton").disabled = false;
+        } else {
+          document.getElementById("product-name").textContent = "Product not found.";
+        }
+      },
+      (err) => console.warn(err)
+    );
+
+    // OCR for expiry date
+    document.getElementById("imageInput").addEventListener("change", async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const { data: { text } } = await Tesseract.recognize(file, 'eng');
+      console.log("OCR Text:", text);
+      const dateMatch = text.match(/(0?[1-9]|[12][0-9]|3[01])[\/\-](0?[1-9]|1[012])[\/\-]\d{2,4}/);
+      if (dateMatch) {
+        scannedProduct.expiry = dateMatch[0];
+        document.getElementById("expiry-date").textContent = `Expiry: ${scannedProduct.expiry}`;
+      } else {
+        document.getElementById("expiry-date").textContent = "Expiry date not found.";
+      }
+    });
+
+    // Upload to Airtable
+    document.getElementById("uploadButton").addEventListener("click", async () => {
+      const payload = {
+        records: [
+          {
+            fields: {
+              "Product Name": scannedProduct.name,
+              "Expiry Date": scannedProduct.expiry,
+              "Barcode": scannedProduct.barcode,
+            }
+          }
+        ]
+      };
+
+      const res = await fetch(`https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${AIRTABLE_TABLE_NAME}`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${AIRTABLE_API_KEY}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+      });
+
+      if (res.ok) {
+        alert("Uploaded to Airtable!");
+      } else {
+        alert("Upload failed.");
+        console.error(await res.text());
+      }
+    });
+  </script>
+</body>
+</html>
