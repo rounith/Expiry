@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,17 +11,25 @@
         body {
             font-family: 'Inter', sans-serif;
         }
+
         .loader {
             border-top-color: #3498db;
             -webkit-animation: spin 1s linear infinite;
             animation: spin 1s linear infinite;
         }
+
         @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
         }
     </style>
 </head>
+
 <body class="bg-gray-100 text-gray-800">
 
     <div class="container mx-auto p-4 md:p-8 max-w-2xl">
@@ -31,53 +40,78 @@
 
         <!-- Configuration Note -->
         <div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 rounded-lg mb-6" role="alert">
-          <p class="font-bold">Configuration</p>
-          <p>Your API keys are now loaded from the <code>config.js</code> file. Make sure you've entered your credentials there.</p>
+            <p class="font-bold">Configuration</p>
+            <p>Your API keys are now loaded from the <code>config.js</code> file. Make sure you've entered your
+                credentials there.</p>
         </div>
 
 
         <!-- Step 1: Scan Item (Renamed from Step 2) -->
         <div class="bg-white p-6 rounded-2xl shadow-md">
             <h2 class="text-2xl font-semibold mb-4 border-b pb-3">1. Scan & Save</h2>
-            
+
             <div class="mb-4">
                 <label for="productName" class="block text-sm font-medium text-gray-700 mb-1">Product Name</label>
-                <input type="text" id="productName" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="e.g., Milk, Bread, Eggs">
+                <input type="text" id="productName"
+                    class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    placeholder="e.g., Milk, Bread, Eggs">
             </div>
+
+            <div class="mb-4">
+                <button id="scanBarcodeBtn"
+                    class="mt-2 bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded-lg w-full">
+                    Scan Barcode for Product
+                </button>
+            </div>
+
+            <div id="barcodeScanner" class="hidden w-full rounded-lg overflow-hidden border border-gray-300 mt-4" style="height: 300px;"></div>
+
 
             <div class="mb-4">
                 <label class="block text-sm font-medium text-gray-700 mb-2">Product Image</label>
                 <input type="file" id="imageUpload" accept="image/*" class="hidden">
                 <div class="flex items-center space-x-4">
-                     <button onclick="document.getElementById('imageUpload').click()" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg transition-colors">
+                    <button onclick="document.getElementById('imageUpload').click()"
+                        class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg transition-colors">
                         Upload Image
                     </button>
-                    <button id="cameraBtn" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg transition-colors">
+                    <button id="cameraBtn"
+                        class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg transition-colors">
                         Use Camera
                     </button>
                 </div>
             </div>
 
             <div id="imagePreviewContainer" class="mb-4 hidden text-center">
-                 <img id="imagePreview" src="#" alt="Image Preview" class="max-w-full h-auto mx-auto rounded-lg shadow-inner border border-gray-200" style="max-height: 300px;"/>
+                <img id="imagePreview" src="#" alt="Image Preview"
+                    class="max-w-full h-auto mx-auto rounded-lg shadow-inner border border-gray-200"
+                    style="max-height: 300px;" />
             </div>
-            
-             <video id="cameraFeed" class="hidden w-full rounded-lg mb-2" autoplay></video>
-             <canvas id="cameraCanvas" class="hidden"></canvas>
-             <button id="captureBtn" class="hidden w-full bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-2 px-4 rounded-lg mb-4">Capture Photo</button>
+
+            <video id="cameraFeed" class="hidden w-full rounded-lg mb-2" autoplay></video>
+            <canvas id="cameraCanvas" class="hidden"></canvas>
+            <button id="captureBtn"
+                class="hidden w-full bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-2 px-4 rounded-lg mb-4">Capture
+                Photo</button>
 
             <!-- Results Section -->
-            <div id="result" class="mt-6 p-4 bg-gray-50 rounded-lg border border-gray-200 min-h-[80px] flex items-center justify-center">
-                 <p id="status" class="text-gray-500">Awaiting image to scan...</p>
-                 <div id="loader" class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12 hidden"></div>
+            <div id="result"
+                class="mt-6 p-4 bg-gray-50 rounded-lg border border-gray-200 min-h-[80px] flex items-center justify-center">
+                <p id="status" class="text-gray-500">Awaiting image to scan...</p>
+                <div id="loader"
+                    class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12 hidden"></div>
             </div>
-             <div id="expiryDateContainer" class="mt-4 hidden">
-                 <label for="expiryDate" class="block text-sm font-medium text-gray-700 mb-1">Detected Expiry Date (YYYY-MM-DD)</label>
-                 <input type="text" id="expiryDate" class="w-full p-2 border border-gray-300 rounded-lg bg-gray-100" readonly>
+            <div id="expiryDateContainer" class="mt-4 hidden">
+                <label for="expiryDate" class="block text-sm font-medium text-gray-700 mb-1">Detected Expiry Date
+                    (YYYY-MM-DD)</label>
+                <input type="date" id="expiryDate" class="w-full p-2 border border-gray-300 rounded-lg bg-gray-100"
+                    readonly>
             </div>
-           
 
-            <button id="saveBtn" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-4 rounded-lg mt-6 transition-colors disabled:bg-gray-400" disabled>
+
+            <button id="saveBtn"
+                class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-4 rounded-lg mt-6 transition-colors disabled:bg-gray-400"
+                disabled>
                 Save to Airtable
             </button>
         </div>
@@ -90,6 +124,8 @@
 
     <!-- IMPORTANT: Load config.js before the main script -->
     <script src="config.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js"></script>
+
 
     <script>
         // DOM Elements
@@ -112,6 +148,65 @@
         let stream = null;
 
         // --- Event Listeners ---
+        const barcodeScanner = document.getElementById('barcodeScanner');
+        const scanBarcodeBtn = document.getElementById('scanBarcodeBtn');
+
+        scanBarcodeBtn.addEventListener('click', () => {
+            barcodeScanner.classList.remove('hidden'); // Show container
+
+            // Stop any existing Quagga instance
+            if (Quagga.initialized) {
+                Quagga.stop();
+            }
+
+            // Initialize Quagga
+            Quagga.init({
+                inputStream: {
+                    name: "Live",
+                    type: "LiveStream",
+                    target: document.getElementById("barcodeScanner"),
+                    constraints: {
+                        width: { min: 640 },
+                        height: { min: 480 },
+                        facingMode: "environment",
+                        aspectRatio: { min: 1, max: 2 }
+                    }
+                },
+                decoder: {
+                    readers: ["ean_reader", "ean_8_reader", "code_128_reader"]
+                },
+                locate: true,
+                numOfWorkers: navigator.hardwareConcurrency || 4,
+                frequency: 10,
+                debug: {
+                    drawBoundingBox: true,
+                    showFrequency: true,
+                    drawScanline: true,
+                    showPattern: true
+                }
+            }, (err) => {
+                if (err) {
+                    console.error("Quagga init error:", err);
+                    updateStatus("Camera error: " + err.message, true);
+                    return;
+                }
+                Quagga.start();
+            });
+
+            Quagga.onDetected((data) => {
+                const barcode = data.codeResult.code;
+                console.log("Barcode detected:", barcode);
+                updateStatus(`Barcode Detected: ${barcode}`, false, true);
+
+                Quagga.offDetected();
+                Quagga.stop();
+
+                barcodeScanner.classList.add('hidden');
+                productNameInput.value = `Product #${barcode}`;
+            });
+
+        });
+
 
         // Handle image upload from file system
         imageUploadInput.addEventListener('change', (event) => {
@@ -151,12 +246,12 @@
             cameraCanvas.height = cameraFeed.videoHeight;
             const context = cameraCanvas.getContext('2d');
             context.drawImage(cameraFeed, 0, 0, cameraCanvas.width, cameraCanvas.height);
-            
+
             const dataUrl = cameraCanvas.toDataURL('image/png');
             imagePreview.src = dataUrl;
             imagePreviewContainer.classList.remove('hidden');
             imageBase64 = dataUrl.split(',')[1];
-            
+
             stopCamera();
             scanImageForDate();
         });
@@ -171,7 +266,7 @@
                 updateStatus("Product Name and Expiry Date are required to save.", true);
                 return;
             }
-            
+
             await saveToAirtable(productName, expiryDate);
         });
 
@@ -182,7 +277,7 @@
          */
         async function scanImageForDate() {
             // API key is now read from the global variable in config.js
-            const apiKey = GEMINI_API_KEY; 
+            const apiKey = GEMINI_API_KEY;
             if (!apiKey || apiKey === "YOUR_GEMINI_API_KEY_HERE") {
                 updateStatus("Please enter your Gemini API Key in config.js first.", true);
                 return;
@@ -216,7 +311,7 @@
                         ]
                     }
                 ],
-                 "generationConfig": {
+                "generationConfig": {
                     "maxOutputTokens": 30
                 }
             };
@@ -232,9 +327,9 @@
                     const errorBody = await response.json();
                     throw new Error(`API Error: ${response.status} ${response.statusText} - ${errorBody.error.message}`);
                 }
-                
+
                 const result = await response.json();
-                
+
                 if (result.candidates && result.candidates.length > 0 && result.candidates[0].content.parts.length > 0) {
                     const text = result.candidates[0].content.parts[0].text.trim();
 
@@ -251,7 +346,7 @@
                         saveBtn.disabled = false; // Allow saving manually entered date
                     }
                 } else {
-                     throw new Error("Invalid response structure from API.");
+                    throw new Error("Invalid response structure from API.");
                 }
 
             } catch (error) {
@@ -261,7 +356,7 @@
                 showLoader(false);
             }
         }
-        
+
         /**
          * Saves the product data to the specified Airtable base.
          */
@@ -279,7 +374,7 @@
             showLoader(true);
             updateStatus("Saving to Airtable...");
             saveBtn.disabled = true;
-            
+
             const url = `https://api.airtable.com/v0/${baseId}/${encodeURIComponent(tableName)}`;
 
             const payload = {
@@ -298,10 +393,10 @@
                     },
                     body: JSON.stringify(payload)
                 });
-                
+
                 if (!response.ok) {
-                     const errorBody = await response.json();
-                     throw new Error(`Airtable API Error: ${response.status} - ${errorBody.error.message}`);
+                    const errorBody = await response.json();
+                    throw new Error(`Airtable API Error: ${response.status} - ${errorBody.error.message}`);
                 }
 
                 await response.json();
@@ -314,12 +409,12 @@
                 expiryDateContainer.classList.add('hidden');
                 expiryDateInput.readOnly = true;
 
-            } catch(error) {
+            } catch (error) {
                 console.error("Error saving to Airtable:", error);
                 updateStatus(`Error: ${error.message}`, true);
             } finally {
-                 showLoader(false);
-                 saveBtn.disabled = true; 
+                showLoader(false);
+                saveBtn.disabled = true;
             }
         }
 
@@ -346,10 +441,10 @@
             if (isError) {
                 resultDiv.classList.add('bg-red-100', 'text-red-700');
             } else if (isSuccess) {
-                 resultDiv.classList.add('bg-green-100', 'text-green-700');
+                resultDiv.classList.add('bg-green-100', 'text-green-700');
             }
         }
-        
+
         /**
          * Shows or hides the loading spinner.
          */
@@ -362,7 +457,7 @@
                 statusP.classList.remove('hidden');
             }
         }
-
     </script>
 </body>
+
 </html>
