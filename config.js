@@ -1,4 +1,4 @@
-const AIRTABLE_API_KEY = 'pat37xdtUv9ZoeR21.223e5f20177f497b21d56b71d050eba62ebc3cc4a68a09646da91a25432b6cfd';
+const AIRTABLE_API_KEY = ${{ secrets.AIRTABLE_API_KEY }};
 const AIRTABLE_BASE_ID = 'appHn3cLbE1rwuBVX';
 const AIRTABLE_TABLE_NAME = 'Groceries';
 const GEMINI_API_KEY='AIzaSyA26nN0hiuLalOLpFQlY7pohxdYNAXL_X0';
